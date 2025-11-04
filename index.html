@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>✨ Photo HD Upscaler — Pinzy</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+    * {box-sizing: border-box; font-family: 'Poppins', sans-serif;}
+    body {
+      margin: 0; padding: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg,#1a0033,#000814,#001d3d);
+      display: flex; justify-content: center; align-items: center;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 30px;
+      width: 95%; max-width: 420px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      color: #fff;
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+    h1 {
+      font-size: 1.7rem;
+      background: linear-gradient(90deg,#00b4d8,#7209b7);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    p {color:#cfcfcf;font-size:0.9rem;margin-bottom:20px;}
+    input[type="file"] {display:none;}
+    label,button {
+      background: linear-gradient(90deg,#4361ee,#7209b7);
+      border: none; color: #fff; padding: 10px 18px;
+      border-radius: 10px; cursor: pointer; font-weight: 600;
+      transition: 0.3s;
+    }
+    label:hover,button:hover {transform:scale(1.05);box-shadow:0 0 10px #7209b7;}
+    #preview {margin-top:15px;display:none;}
+    #preview img {width:100%;border-radius:10px;margin-top:10px;}
+    .loading {
+      display:none;margin-top:15px;
+      font-size:0.9rem;color:#90e0ef;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {50%{opacity:0.5;}}
+    footer {
+      margin-top:20px;font-size:0.8rem;color:#aaa;
+    }
+    a {color:#00b4d8;text-decoration:none;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🪄 Photo HD Upscaler</h1>
+    <p>Tingkatkan ketajaman & kejernihan fotomu secara otomatis — powered by DeepAI.</p>
+    <form id="uploadForm">
+      <label for="imageInput">📁 Pilih Foto</label>
+      <input type="file" id="imageInput" accept="image/*" required>
+      <br><br>
+      <button type="submit">🚀 Proses Sekarang</button>
+    </form>
+    <div id="preview">
+      <h3>📸 Preview</h3>
+      <img id="previewImg" src="">
+    </div>
+    <div class="loading" id="loading">⚙️ AI sedang memproses...</div>
+    <div id="result" style="display:none;margin-top:15px;">
+      <h3>✨ Hasil HD</h3>
+      <img id="hdImg" src="">
+      <br><a id="downloadLink" href="#" download>⬇️ Unduh Gambar HD</a>
+    </div>
+    <footer>Made with 💜 by <b>Pinzy</b> • 2025</footer>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const input = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+    const previewImg = document.getElementById("previewImg");
+    const loading = document.getElementById("loading");
+    const result = document.getElementById("result");
+    const hdImg = document.getElementById("hdImg");
+    const downloadLink = document.getElementById("downloadLink");
+
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if(file){
+        preview.style.display = "block";
+        previewImg.src = URL.createObjectURL(file);
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = input.files[0];
+      if (!file) return alert("Pilih foto dulu!");
+
+      result.style.display = "none";
+      loading.style.display = "block";
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      try {
+        const res = await fetch("https://api.deepai.org/api/torch-srgan", {
+          method: "POST",
+          headers: {"Api-Key": "2659d73e-fd67-4d47-826b-4e3e98226b12"},
+          body: formData
+        });
+        const data = await res.json();
+
+        if (data.output_url) {
+          hdImg.src = data.output_url;
+          downloadLink.href = data.output_url;
+          result.style.display = "block";
+        } else {
+          alert("Gagal memproses gambar 😢");
+        }
+      } catch (err) {
+        alert("Terjadi kesalahan: " + err.message);
+      } finally {
+        loading.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
